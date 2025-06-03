@@ -23,13 +23,26 @@ class Threads:
         while "thread-" + gameName.replace(" ", "_") in Threads.active_threads and threading.main_thread().is_alive():
             running = any(p.name().lower() == exeName.lower() for p in psutil.process_iter(['name']))
             if running and not was_running:
-                Threads.game_log(gameName, "The game is running!")
+                if Threads.check_last_log(gameName) in [False, None]:
+                    Threads.game_log(gameName, "The game is running!")
                 was_running = True
             elif not running and was_running:
-                Threads.game_log(gameName, "The game is stopped!")
+                if Threads.check_last_log(gameName):
+                    Threads.game_log(gameName, "The game is stopped!")
                 Threads.calculate_time(gameName)
                 was_running = False
             time.sleep(1)
+
+    @staticmethod
+    def check_last_log(gameName) -> bool | None:
+        with open(f"games/{gameName}/logs.txt", "r") as log:
+            l = log.readlines()
+            for i in range(len(l)-1, -1, -1):
+                if l[i].endswith("The game is stopped!\n"):
+                    return False
+                elif l[i].endswith("The game is running!\n"):
+                    return True
+        return None
 
     @staticmethod
     def game_log(gameName, message):
