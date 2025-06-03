@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 from game_setup import GameSetup
 import json
 import datetime
@@ -39,7 +40,7 @@ class Game:
                 data["games"].pop(i)
         with open("system/games.json", "w") as fi:
             json.dump(data, fi, indent=4)
-        os.removedirs(f"games/{self.gameName}")
+        shutil.rmtree(f"games/{self.gameName}")
         system_log(f"{self.gameName} is removed successfully!")
 
     def activate(self):
