@@ -5,7 +5,7 @@ a = Analysis(
     ['game_calculator.py'],
     pathex=[],
     binaries=[],
-    datas=[('assets/icon.ico', '.')],
+    datas=[('assets/icon.ico', 'assets')],
     hiddenimports=['pystray', 'PIL', 'pystray._win32', 'psutil', 'tabulate'],
     hookspath=[],
     hooksconfig={},
