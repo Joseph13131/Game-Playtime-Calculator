@@ -44,7 +44,7 @@ def removeAll(lst, value) -> list:
 if __name__ == "__main__":
     games = main.getGames()
     for game in games:
-        calculate_time(game)
+        calculate_time(game.gameName)
     os.system('')
     while True:
         inp = input("Type a command (1 = add a game, 2 = activate a game, 3 = deactivate a game, 4 = remove a game, 5 = list the games) (Press x to exit): ")
