@@ -5,6 +5,7 @@ from game_setup import GameSetup
 import json
 import datetime
 import threads
+from pure_path import pure_path
 
 class Game:
     def __init__(self, gameName, exe_path, active_status=False, register_new=False):
@@ -15,12 +16,12 @@ class Game:
         if register_new:
             GameSetup(gameName, exe_path)
             self.__register()
-        with open(f"games/{gameName}/game_config.json", "r") as file:
+        with open(pure_path(f"games/{gameName}/game_config.json"), "r") as file:
             data = json.load(file)
         self.time = data["play_time"]
 
     def __register(self):
-        with open("system/games.json", "r") as f:
+        with open(pure_path("system/games.json"), "r") as f:
             data = json.load(f)
         game = {
             "gameName": self.gameName,
@@ -28,41 +29,41 @@ class Game:
             "active_status": self.active_status,
         }
         data["games"].append(game)
-        with open("system/games.json", "w") as fi:
+        with open(pure_path("system/games.json"), "w") as fi:
             json.dump(data, fi, indent=4)
         system_log(f"{self.gameName} is added successfully!")
 
     def remove(self):
-        with open("system/games.json", "r") as f:
+        with open(pure_path("system/games.json"), "r") as f:
             data = json.load(f)
         for i in range(len(data["games"])):
             if data["games"][i]["gameName"] == self.gameName:
                 data["games"].pop(i)
-        with open("system/games.json", "w") as fi:
+        with open(pure_path("system/games.json"), "w") as fi:
             json.dump(data, fi, indent=4)
         shutil.rmtree(f"games/{self.gameName}")
         system_log(f"{self.gameName} is removed successfully!")
 
     def activate(self):
         if is_game(self):
-            with open("system/games.json", "r") as f:
+            with open(pure_path("system/games.json"), "r") as f:
                 data = json.load(f)
             if data["games"][getGame(self.gameName)[1]]["active_status"] is False:
                 data["games"][getGame(self.gameName)[1]]["active_status"] = True
                 system_log(f"{self.gameName} is activated!")
-            with open("system/games.json", "w") as f:
+            with open(pure_path("system/games.json"), "w") as f:
                 json.dump(data, f, indent=4)
             if not sys.executable.endswith("cli_runner.exe"):
                 threads.Threads.monitor_game(self.exe_name, self.gameName)
 
     def disable(self):
         if is_game(self):
-            with open("system/games.json", "r") as f:
+            with open(pure_path("system/games.json"), "r") as f:
                 data = json.load(f)
             if data["games"][getGame(self.gameName)[1]]["active_status"] is True:
                 data["games"][getGame(self.gameName)[1]]["active_status"] = False
                 system_log(f"{self.gameName} is disabled!")
-            with open("system/games.json", "w") as f:
+            with open(pure_path("system/games.json"), "w") as f:
                 json.dump(data, f, indent=4)
             if not sys.executable.endswith("cli_runner.exe"):
                 threads.Threads.deactivate_game(self.gameName)
@@ -70,13 +71,13 @@ class Game:
 class Main:
     def __init__(self):
         threads.Threads()
-        if not os.path.isdir("games"):
-            os.mkdir("games")
-        if not os.path.isdir("system"):
-            os.mkdir("system")
-            with open("system/log.txt", "w") as _:
+        if not os.path.isdir(pure_path("games")):
+            os.mkdir(pure_path("games"))
+        if not os.path.isdir(pure_path("system")):
+            os.mkdir(pure_path("system"))
+            with open(pure_path("system/log.txt"), "w") as _:
                 pass
-            with open("system/games.json", "w") as f:
+            with open(pure_path("system/games.json"), "w") as f:
                 json.dump({"games": []}, f, indent=4)
         for game in getGames():
             if game.active_status:
@@ -90,7 +91,7 @@ class Main:
 
 def getGames() -> list[Game]:
     games = []
-    with open("system/games.json", "r") as f:
+    with open(pure_path("system/games.json"), "r") as f:
         data = json.load(f)
     for game in data["games"]:
         games.append(Game(game["gameName"], game["executable_path"], game["active_status"]))
@@ -103,9 +104,9 @@ def getGame(gameName) -> (Game, int):
     return None
 
 def calculate_time(gameName):
-    with open(f"games/{gameName}/game_config.json", "r") as f:
+    with open(pure_path(f"games/{gameName}/game_config.json"), "r") as f:
         data = json.load(f)
-    with open (f"games/{gameName}/logs.txt", "r") as f:
+    with open (pure_path(f"games/{gameName}/logs.txt"), "r") as f:
         log = f.readlines()
     enters = removeAll([(datetime.datetime.strptime(i.removesuffix("\n").split("]")[0][1::], "%d-%m-%Y %H:%M:%S") if i.removesuffix("\n").endswith("The game is running!") else 0) for i in log], 0)
     outs = removeAll([(datetime.datetime.strptime(i.removesuffix("\n").split("]")[0][1::], "%d-%m-%Y %H:%M:%S") if i.removesuffix("\n").endswith("The game is stopped!") else 0) for i in log], 0)
@@ -116,7 +117,7 @@ def calculate_time(gameName):
         time += (outs[i] - enters[i]).total_seconds() / 60
     time = int(time)
     data["play_time"] = time
-    with open(f"games/{gameName}/game_config.json", "w") as f:
+    with open(pure_path(f"games/{gameName}/game_config.json"), "w") as f:
         json.dump(data, f)
 
 def compare_games(game1:Game, game2:Game) -> bool:
@@ -137,6 +138,8 @@ def removeAll(lst, value) -> list:
             a.append(i)
     return a
 
+
+
 def system_log(message):
-    with open("system/log.txt", "a") as log:
+    with open(pure_path("system/log.txt"), "a") as log:
         log.write(f"[{datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S')}]: {message}\n")

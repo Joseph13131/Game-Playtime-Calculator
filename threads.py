@@ -3,6 +3,7 @@ import psutil
 import datetime
 import time
 import json
+from pure_path import pure_path
 
 class Threads:
     active_threads = []
@@ -35,7 +36,7 @@ class Threads:
 
     @staticmethod
     def check_last_log(gameName) -> bool | None:
-        with open(f"games/{gameName}/logs.txt", "r") as log:
+        with open(pure_path(f"games/{gameName}/logs.txt"), "r") as log:
             l = log.readlines()
             for i in range(len(l)-1, -1, -1):
                 if l[i].endswith("The game is stopped!\n"):
@@ -46,14 +47,14 @@ class Threads:
 
     @staticmethod
     def game_log(gameName, message):
-        with open(f"games/{gameName}/logs.txt", "a") as log:
+        with open(pure_path(f"games/{gameName}/logs.txt"), "a") as log:
             log.write(f"[{datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")}]: {message}\n")
 
     @staticmethod
     def calculate_time(gameName):
-        with open(f"games/{gameName}/game_config.json", "r") as f:
+        with open(pure_path(f"games/{gameName}/game_config.json"), "r") as f:
             data = json.load(f)
-        with open(f"games/{gameName}/logs.txt", "r") as f:
+        with open(pure_path(f"games/{gameName}/logs.txt"), "r") as f:
             log = f.readlines()
         enters = removeAll([(datetime.datetime.strptime(i.removesuffix("\n").split("]")[0][1::],
                                                         "%d-%m-%Y %H:%M:%S") if i.removesuffix("\n").endswith(
@@ -68,7 +69,7 @@ class Threads:
             time += (outs[i] - enters[i]).total_seconds() / 60
         time = int(time)
         data["play_time"] = time
-        with open(f"games/{gameName}/game_config.json", "w") as f:
+        with open(pure_path(f"games/{gameName}/game_config.json"), "w") as f:
             json.dump(data, f)
 
 def removeAll(lst, value) -> list:

@@ -979,6 +979,9 @@
   ('psutil._pswindows',
    'C:\\Users\\Hakan\\PycharmProjects\\gamePlaytimeCalculator\\.venv\\Lib\\site-packages\\psutil\\_pswindows.py',
    'PYMODULE'),
+  ('pure_path',
+   'C:\\Users\\Hakan\\PycharmProjects\\Game Playtime Calculator\\pure_path.py',
+   'PYMODULE'),
   ('py_compile',
    'C:\\Program '
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\py_compile.py',

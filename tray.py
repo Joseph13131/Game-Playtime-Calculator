@@ -32,7 +32,7 @@ def open_console():
                 path += l[i]
         proc = subprocess.Popen(path)
         proc.wait()
-        with open("system/games.json", "r") as f:
+        with open(main.pure_path("system/games.json"), "r") as f:
             data = json.load(f)
         games = data["games"]
         for game in games:
