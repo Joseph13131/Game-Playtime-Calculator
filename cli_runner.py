@@ -1,6 +1,7 @@
 import sys
 import main, game_calculator, tray, threads, game_setup
 import atexit, PIL, subprocess, pystray, psutil, json, os, datetime, time, threading, tabulate
+from pure_path import pure_path
 
 def getInput() -> main.Game:
     games = main.getGames()
@@ -12,7 +13,38 @@ def getInput() -> main.Game:
     num = int(input("===> "))
     return games[num-1]
 
+def calculate_time(gameName):
+    with open(pure_path(f"games/{gameName}/game_config.json"), "r") as f:
+        data = json.load(f)
+    with open(pure_path(f"games/{gameName}/logs.txt"), "r") as f:
+        log = f.readlines()
+    enters = removeAll([(datetime.datetime.strptime(i.removesuffix("\n").split("]")[0][1::],
+                                                    "%d-%m-%Y %H:%M:%S") if i.removesuffix("\n").endswith(
+        "The game is running!") else 0) for i in log], 0)
+    outs = removeAll([(datetime.datetime.strptime(i.removesuffix("\n").split("]")[0][1::],
+                                                  "%d-%m-%Y %H:%M:%S") if i.removesuffix("\n").endswith(
+        "The game is stopped!") else 0) for i in log], 0)
+    if outs < enters:
+        outs.append(datetime.datetime.now())
+    time = 0
+    for i in range(len(enters)):
+        time += (outs[i] - enters[i]).total_seconds() / 60
+    time = int(time)
+    data["play_time"] = time
+    with open(pure_path(f"games/{gameName}/game_config.json"), "w") as f:
+        json.dump(data, f)
+
+def removeAll(lst, value) -> list:
+    a = []
+    for i in lst:
+        if i != value:
+            a.append(i)
+    return a
+
 if __name__ == "__main__":
+    games = main.getGames()
+    for game in games:
+        calculate_time(game)
     os.system('')
     while True:
         inp = input("Type a command (1 = add a game, 2 = activate a game, 3 = deactivate a game, 4 = remove a game, 5 = list the games) (Press x to exit): ")
@@ -68,3 +100,4 @@ if __name__ == "__main__":
                 print("\n" + tabulate.tabulate(list_elements, header_elements, tablefmt="grid") + "\n")
             case _:
                 pass
+
