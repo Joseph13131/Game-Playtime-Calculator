@@ -24,7 +24,7 @@ def calculate_time(gameName):
     outs = removeAll([(datetime.datetime.strptime(i.removesuffix("\n").split("]")[0][1::],
                                                   "%d-%m-%Y %H:%M:%S") if i.removesuffix("\n").endswith(
         "The game is stopped!") else 0) for i in log], 0)
-    if outs < enters:
+    if len(outs) < len(enters):
         outs.append(datetime.datetime.now())
     time = 0
     for i in range(len(enters)):
