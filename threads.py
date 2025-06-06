@@ -47,8 +47,10 @@ class Threads:
 
     @staticmethod
     def game_log(gameName, message):
-        with open(pure_path(f"games/{gameName}/logs.txt"), "a") as log:
-            log.write(f"[{datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")}]: {message}\n")
+        if "threadC-" + gameName not in [a.name for a in threading.enumerate()]:
+            threading.Thread(target=lambda: time.sleep(1), name="threadC-" + gameName).start()
+            with open(pure_path(f"games/{gameName}/logs.txt"), "a") as log:
+                log.write(f"[{datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")}]: {message}\n")
 
     @staticmethod
     def calculate_time(gameName):
